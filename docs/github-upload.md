@@ -23,4 +23,12 @@
 
 运行时仅标准库；当前环境 setuptools 与 pytest 的包元数据标注 MIT，项目未复制这些包的源码。所有者已明确选择公开仓库与 MIT 许可证。已添加 LICENSE 与包元数据，版权署名使用 GitHub 账号 Inquifur；未创建 release 或 tag。
 
-README 补充无须激活的安装步骤、故障到修复示例、真实退出码、HTML 打开方式及已实现/计划功能边界。没有修改分析器或放宽测试。
+README 补充无须激活的安装步骤、故障到修复示例、真实退出码、HTML 打开方式及已实现/计划功能边界。没有修改分析器。首次云端执行后，修正了一项测试对 Python 旧版 JSON 错误位置的固定假设，仍严格核对当前解码器给出的行列，未跳过或删除测试。
+
+## 远程核验
+
+已创建公开仓库 [Inquifur/branchcheck](https://github.com/Inquifur/branchcheck)，默认分支 main，MIT 许可证。首次上传 56 个文件，远程所有 blob SHA 与本地提交逐一相同。
+
+首轮 [Actions](https://github.com/Inquifur/branchcheck/actions/runs/41806298704) 中 Windows/Linux 的 Python 3.11 均通过；Python 3.13 均为 278 passed、1 failed。失败原因是标准库将尾随逗号定位在第 2 行第 21 列，而旧测试固定期待第 3 行第 1 列。测试现改为核对实际解码器的行列，并保留输入错误类型和中文错误前缀检查；分析器行为不变。修正提交会触发新的四项矩阵，最终云端结果见 [Actions](https://github.com/Inquifur/branchcheck/actions)。
+
+Git 直连 github.com:443 失败后，通过本机已有的代理完成推送；仅为本次命令指定代理，没有修改全局配置。仓库未包含代理配置、私人邮箱或本地生成报告。原样保留三份故障 JSON 末尾空行，git diff --check 会提示这三处空行，不影响输入语义和测试。

@@ -159,9 +159,16 @@ def test_non_standard_json_constants(token):
 
 
 def test_json_syntax_error_has_line_and_column():
+    text = '{\n "schema_version": 1,\n}'
+    # Python versions can locate a trailing comma at the comma or closing brace.
+    # The wrapper must preserve the active decoder's exact line and column.
+    with pytest.raises(json.JSONDecodeError) as decoded:
+        json.loads(text)
     with pytest.raises(InputError) as caught:
-        loads_story('{\n "schema_version": 1,\n}')
-    assert '第 3 行第 1 列' in str(caught.value)
+        loads_story(text)
+    expected = decoded.value
+    assert f'第 {expected.lineno} 行第 {expected.colno} 列' in str(caught.value)
+    assert str(caught.value).startswith('JSON 语法错误，')
 
 
 def test_depth_boundary_and_extreme_nesting():
