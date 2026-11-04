@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "title": "回到门前：合法的钥匙循环",
+  "start": "door",
+  "variables": {"has_key": false},
+  "nodes": [
+    {
+      "id": "door",
+      "title": "上锁的门",
+      "choices": [
+        {"id": "search", "text": "离开门前寻找钥匙", "target": "store"},
+        {
+          "id": "unlock",
+          "text": "用钥匙开门",
+          "target": "outside",
+          "condition": {"var": "has_key", "eq": true}
+        }
+      ]
+    },
+    {
+      "id": "store",
+      "title": "杂物间",
+      "choices": [
+        {"id": "take_key", "text": "拿钥匙后回到门前", "target": "door", "effects": {"has_key": true}}
+      ]
+    },
+    {"id": "outside", "title": "开门离开", "ending": true}
+  ]
+}

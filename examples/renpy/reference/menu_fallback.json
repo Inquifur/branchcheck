@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "title": "Ren'Py reference: menu fallback",
+  "start": "menu_start",
+  "variables": {
+    "has_access": false,
+    "continued": false
+  },
+  "nodes": [
+    {
+      "id": "menu_start",
+      "title": "menu at label start",
+      "choices": [
+        {
+          "id": "enter_room",
+          "text": "选择可用的菜单项",
+          "target": "after_menu",
+          "condition": {"var": "has_access", "eq": true},
+          "effects": {"continued": false}
+        },
+        {
+          "id": "all_options_disabled",
+          "text": "全部菜单项不可用时继续",
+          "target": "after_menu",
+          "condition": {"not": {"var": "has_access", "eq": true}}
+        }
+      ]
+    },
+    {
+      "id": "after_menu",
+      "title": "菜单后的公共赋值",
+      "choices": [
+        {
+          "id": "set_continued",
+          "text": "continued = True",
+          "target": "return_start",
+          "effects": {"continued": true}
+        }
+      ]
+    },
+    {
+      "id": "return_start",
+      "title": "return from start",
+      "ending": true
+    }
+  ]
+}

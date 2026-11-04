@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "title": "取得照片后进行对峙",
+  "start": "hall",
+  "variables": {"has_photo": false},
+  "nodes": [
+    {
+      "id": "hall",
+      "title": "走廊",
+      "choices": [
+        {"id": "investigate", "text": "调查实验室", "target": "lab"}
+      ]
+    },
+    {
+      "id": "lab",
+      "title": "实验室",
+      "choices": [
+        {
+          "id": "take_photo",
+          "text": "拿到设备照片",
+          "target": "confront",
+          "effects": {"has_photo": true}
+        }
+      ]
+    },
+    {
+      "id": "confront",
+      "title": "出示照片",
+      "assertions": [
+        {
+          "id": "photo_required",
+          "condition": {"var": "has_photo", "eq": true},
+          "message": "进入出示照片的剧情前，应已取得照片。"
+        }
+      ],
+      "choices": [
+        {"id": "finish", "text": "完成对峙", "target": "truth"}
+      ]
+    },
+    {"id": "truth", "title": "真相结局", "ending": true}
+  ]
+}

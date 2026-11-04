@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "title": "改编试用案例：失窃笔记与实验室调查",
+  "start": "lobby",
+  "variables": {
+    "has_archive_pass": false,
+    "has_memo": false,
+    "witness_interviewed": false,
+    "has_lab_access": false,
+    "has_photo": false,
+    "photo_logged": false,
+    "has_sample_result": false,
+    "case_ready": false
+  },
+  "nodes": [
+    {
+      "id": "lobby",
+      "title": "学院大厅：整理失窃笔记调查方向",
+      "choices": [
+        {
+          "id": "ask_reception",
+          "text": "向前台申请调查手续",
+          "target": "reception"
+        },
+        {
+          "id": "visit_archive",
+          "text": "前往档案室核对借阅记录",
+          "target": "archive_door"
+        },
+        {
+          "id": "visit_witness",
+          "text": "去休息区询问目击者",
+          "target": "witness_hall"
+        },
+        {
+          "id": "visit_lab",
+          "text": "前往实验室检查事故现场",
+          "target": "lab_door"
+        },
+        {
+          "id": "review_evidence",
+          "text": "证据齐全，开始交叉复盘",
+          "target": "evidence_review",
+          "condition": {
+            "all": [
+              {
+                "var": "has_memo",
+                "eq": true
+              },
+              {
+                "var": "witness_interviewed",
+                "eq": true
+              },
+              {
+                "var": "photo_logged",
+                "eq": true
+              },
+              {
+                "var": "has_sample_result",
+                "eq": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "pause_case",
+          "text": "暂时封存线索，结束本次调查",
+          "target": "unresolved_end"
+        }
+      ]
+    },
+    {
+      "id": "reception",
+      "title": "学院前台：办理调查手续",
+      "choices": [
+        {
+          "id": "get_archive_pass",
+          "text": "领取档案室临时通行证",
+          "target": "lobby",
+          "effects": {
+            "has_archive_pass": true
+          }
+        },
+        {
+          "id": "get_lab_access",
+          "text": "登记实验室现场访问许可",
+          "target": "lobby",
+          "effects": {
+            "has_lab_access": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "archive_door",
+      "title": "档案室门口：核验临时通行证",
+      "choices": [
+        {
+          "id": "enter_archive",
+          "text": "出示通行证进入档案室",
+          "target": "archive_room",
+          "condition": {
+            "var": "has_archive_pass",
+            "eq": true
+          }
+        },
+        {
+          "id": "return_from_archive_door",
+          "text": "手续不足，返回大厅",
+          "target": "lobby"
+        }
+      ]
+    },
+    {
+      "id": "archive_room",
+      "title": "档案室：找到被调换的借阅备忘",
+      "choices": [
+        {
+          "id": "copy_memo",
+          "text": "复印备忘并返回大厅",
+          "target": "lobby",
+          "condition": {
+            "var": "has_archive_pass",
+            "eq": false
+          },
+          "effects": {
+            "has_memo": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "witness_hall",
+      "title": "休息区外：找到值班目击者",
+      "choices": [
+        {
+          "id": "start_interview",
+          "text": "询问笔记失窃当晚的动静",
+          "target": "witness_dialogue"
+        }
+      ]
+    },
+    {
+      "id": "witness_dialogue",
+      "title": "条件对话：目击者要求核对借阅备忘",
+      "choices": [
+        {
+          "id": "show_memo",
+          "text": "出示借阅备忘，请目击者确认时间",
+          "target": "witness_cooperative",
+          "condition": {
+            "var": "has_memo",
+            "eq": true
+          }
+        },
+        {
+          "id": "ask_without_memo",
+          "text": "没有备忘，先试着询问",
+          "target": "witness_resists",
+          "condition": {
+            "var": "has_memo",
+            "eq": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "witness_resists",
+      "title": "目击者拒绝凭印象作证",
+      "choices": [
+        {
+          "id": "return_after_refusal",
+          "text": "返回大厅寻找书面记录",
+          "target": "lobby"
+        }
+      ]
+    },
+    {
+      "id": "witness_cooperative",
+      "title": "目击者确认了异常搬运时间",
+      "choices": [
+        {
+          "id": "record_statement",
+          "text": "记录证词并返回大厅",
+          "target": "lobby",
+          "effects": {
+            "witness_interviewed": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "lab_door",
+      "title": "实验室门口：现场仍处于封存状态",
+      "choices": [
+        {
+          "id": "enter_lab",
+          "text": "凭访问许可进入实验室",
+          "target": "lab_bench",
+          "condition": {
+            "var": "has_lab_access",
+            "eq": true
+          }
+        },
+        {
+          "id": "return_from_lab_door",
+          "text": "暂不进入，返回大厅",
+          "target": "lobby"
+        }
+      ]
+    },
+    {
+      "id": "lab_bench",
+      "title": "实验台：照片与样本需要分别登记",
+      "choices": [
+        {
+          "id": "inspect_camera",
+          "text": "拍摄被移动过的设备",
+          "target": "photo_station"
+        },
+        {
+          "id": "inspect_sample",
+          "text": "检验桌面的残留样本",
+          "target": "sample_station"
+        }
+      ]
+    },
+    {
+      "id": "photo_station",
+      "title": "影像登记台：保存现场照片",
+      "choices": [
+        {
+          "id": "take_photo",
+          "text": "取得照片并完成影像登记",
+          "target": "lobby",
+          "effects": {
+            "has_photo": true,
+            "photo_logged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "sample_station",
+      "title": "样本台：确认残留物来自档案封套",
+      "choices": [
+        {
+          "id": "test_sample",
+          "text": "记录检验结果并返回大厅",
+          "target": "lobby",
+          "effects": {
+            "has_sample_result": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "evidence_review",
+      "title": "证据复盘：比较照片、证词与档案时间",
+      "choices": [
+        {
+          "id": "present_photo",
+          "text": "先说明现场照片中的设备位置",
+          "target": "photo_briefing"
+        },
+        {
+          "id": "compare_timeline",
+          "text": "先核对证词与借阅时间线",
+          "target": "timeline_check"
+        }
+      ]
+    },
+    {
+      "id": "photo_briefing",
+      "title": "照片说明：设备位置与证词一致",
+      "assertions": [
+        {
+          "id": "photo_must_exist",
+          "condition": {
+            "var": "has_photo",
+            "eq": true
+          },
+          "message": "影像已登记时，复盘现场必须持有实际照片。"
+        }
+      ],
+      "choices": [
+        {
+          "id": "finish_photo_review",
+          "text": "完成照片复盘，进入结论讨论",
+          "target": "decision_room",
+          "effects": {
+            "case_ready": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "timeline_check",
+      "title": "时间线核对：搬运发生在笔记失窃之后",
+      "assertions": [
+        {
+          "id": "timeline_evidence_complete",
+          "condition": {
+            "all": [
+              {
+                "var": "has_memo",
+                "eq": true
+              },
+              {
+                "var": "witness_interviewed",
+                "eq": true
+              },
+              {
+                "var": "has_sample_result",
+                "eq": true
+              }
+            ]
+          },
+          "message": "进入时间线核对前，应已取得备忘、证词和样本结果。"
+        }
+      ],
+      "choices": [
+        {
+          "id": "finish_timeline_review",
+          "text": "完成时间线复盘，进入结论讨论",
+          "target": "decision_room",
+          "effects": {
+            "case_ready": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "decision_room",
+      "title": "结论讨论：决定如何处理交叉证据",
+      "assertions": [
+        {
+          "id": "review_completed",
+          "condition": {
+            "var": "case_ready",
+            "eq": true
+          },
+          "message": "进入结论讨论前必须完成一次证据复盘。"
+        }
+      ],
+      "choices": [
+        {
+          "id": "reveal_truth",
+          "text": "提交完整证据链，追查笔记去向",
+          "target": "truth_end",
+          "condition": {
+            "var": "case_ready",
+            "eq": true
+          }
+        },
+        {
+          "id": "protect_source",
+          "text": "先保护目击者，再提交匿名结论",
+          "target": "protected_end",
+          "condition": {
+            "var": "case_ready",
+            "eq": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "truth_end",
+      "title": "真相结局：证据链交由学院正式复核",
+      "ending": true,
+      "assertions": [
+        {
+          "id": "truth_requires_review",
+          "condition": {
+            "var": "case_ready",
+            "eq": true
+          },
+          "message": "提交真相结论前必须完成证据复盘。"
+        }
+      ]
+    },
+    {
+      "id": "protected_end",
+      "title": "保护证人结局：匿名证据启动内部调查",
+      "ending": true,
+      "assertions": [
+        {
+          "id": "protected_requires_review",
+          "condition": {
+            "var": "case_ready",
+            "eq": true
+          },
+          "message": "提交匿名结论前必须完成证据复盘。"
+        }
+      ]
+    },
+    {
+      "id": "unresolved_end",
+      "title": "暂缓结局：线索封存，等待后续材料",
+      "ending": true
+    }
+  ]
+}
+

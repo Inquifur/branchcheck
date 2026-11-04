@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "title": "Ren'Py reference: nested assignment and merge",
+  "start": "outer_menu",
+  "variables": {
+    "has_clue": false,
+    "alarmed": false,
+    "reviewed": false
+  },
+  "nodes": [
+    {
+      "id": "outer_menu",
+      "title": "menu at label start",
+      "choices": [
+        {
+          "id": "search_archive",
+          "text": "搜索档案室",
+          "target": "alarm_check"
+        },
+        {
+          "id": "leave_directly",
+          "text": "直接撤离",
+          "target": "leave_check"
+        }
+      ]
+    },
+    {
+      "id": "alarm_check",
+      "title": "if alarmed",
+      "choices": [
+        {
+          "id": "return_when_alarmed",
+          "text": "alarmed branch returns immediately",
+          "target": "return_start_early",
+          "condition": {"var": "alarmed", "eq": true}
+        },
+        {
+          "id": "continue_when_calm",
+          "text": "else branch enters nested menu",
+          "target": "clue_menu",
+          "condition": {"not": {"var": "alarmed", "eq": true}}
+        }
+      ]
+    },
+    {
+      "id": "clue_menu",
+      "title": "nested menu",
+      "choices": [
+        {
+          "id": "take_clue",
+          "text": "带走线索",
+          "target": "after_clue_menu",
+          "effects": {"has_clue": true}
+        },
+        {
+          "id": "record_only",
+          "text": "只做记录",
+          "target": "after_clue_menu",
+          "effects": {"has_clue": false}
+        }
+      ]
+    },
+    {
+      "id": "after_clue_menu",
+      "title": "nested branches merge before common assignment",
+      "choices": [
+        {
+          "id": "mark_reviewed",
+          "text": "reviewed = True",
+          "target": "result_check",
+          "effects": {"reviewed": true}
+        }
+      ]
+    },
+    {
+      "id": "result_check",
+      "title": "if has_clue and reviewed",
+      "choices": [
+        {
+          "id": "jump_truth",
+          "text": "jump truth",
+          "target": "return_truth",
+          "condition": {
+            "all": [
+              {"var": "has_clue", "eq": true},
+              {"var": "reviewed", "eq": true}
+            ]
+          }
+        },
+        {
+          "id": "jump_leave",
+          "text": "else jump leave",
+          "target": "leave_check",
+          "condition": {
+            "not": {
+              "all": [
+                {"var": "has_clue", "eq": true},
+                {"var": "reviewed", "eq": true}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "leave_check",
+      "title": "if reviewed at label leave",
+      "choices": [
+        {
+          "id": "return_reviewed",
+          "text": "reviewed branch returns",
+          "target": "return_leave_reviewed",
+          "condition": {"var": "reviewed", "eq": true}
+        },
+        {
+          "id": "jump_empty",
+          "text": "else jump empty",
+          "target": "return_empty",
+          "condition": {"not": {"var": "reviewed", "eq": true}}
+        }
+      ]
+    },
+    {
+      "id": "return_start_early",
+      "title": "early return from start",
+      "ending": true
+    },
+    {
+      "id": "return_truth",
+      "title": "return from truth",
+      "ending": true
+    },
+    {
+      "id": "return_leave_reviewed",
+      "title": "return from reviewed leave",
+      "ending": true
+    },
+    {
+      "id": "return_empty",
+      "title": "return from empty",
+      "ending": true
+    }
+  ]
+}

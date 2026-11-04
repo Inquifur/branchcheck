@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "title": "失窃笔记与实验室事故：错误版本",
+  "start": "foyer",
+  "variables": {
+    "has_photo": false,
+    "has_permission": false,
+    "has_record": false,
+    "has_sd": false
+  },
+  "nodes": [
+    {
+      "id": "foyer",
+      "title": "门厅：顾言开始调查失窃笔记",
+      "choices": [
+        {"id": "read_notes", "text": "查看周启的初步调查记录", "target": "record_room"},
+        {"id": "request_permission", "text": "向值班员申请调查许可", "target": "permit_desk"},
+        {"id": "inspect_lab", "text": "去实验室调查室门口", "target": "lab_entry"},
+        {"id": "rush", "text": "直接去出示设备照片", "target": "confront"},
+        {"id": "inspect_card", "text": "寻找遗留的 SD 卡", "target": "sd_desk"},
+        {"id": "withdraw", "text": "保留疑问并结束调查", "target": "quiet_end"},
+        {
+          "id": "impossible",
+          "text": "按特别程序提交结论",
+          "target": "truth",
+          "condition": {"all": [{"var": "has_record", "eq": true}, {"var": "has_record", "eq": false}]}
+        }
+      ]
+    },
+    {
+      "id": "record_room",
+      "title": "记录室：整理笔记失窃时间线",
+      "choices": [
+        {"id": "copy_record", "text": "抄录初步调查记录并返回", "target": "foyer", "effects": {"has_record": true}}
+      ]
+    },
+    {
+      "id": "permit_desk",
+      "title": "值班台：审批调查许可",
+      "choices": [
+        {
+          "id": "issue",
+          "text": "提交材料取得许可，前往调查室",
+          "target": "lab_entry",
+          "condition": {"var": "has_photo", "eq": true},
+          "effects": {"has_permission": true}
+        },
+        {"id": "return", "text": "返回门厅补充材料", "target": "foyer"}
+      ]
+    },
+    {
+      "id": "lab_entry",
+      "title": "调查室门口：事故设备受控保管",
+      "choices": [
+        {
+          "id": "enter",
+          "text": "凭许可进入设备调查室",
+          "target": "photo_room",
+          "condition": {"var": "has_permission", "eq": true}
+        },
+        {"id": "return", "text": "返回门厅", "target": "foyer"}
+      ]
+    },
+    {
+      "id": "photo_room",
+      "title": "设备调查室：拍摄事故设备",
+      "choices": [
+        {"id": "photograph", "text": "取得设备照片并返回", "target": "foyer", "effects": {"has_photo": true}}
+      ]
+    },
+    {
+      "id": "confront",
+      "title": "出示照片",
+      "assertions": [
+        {"id": "photo_required", "condition": {"var": "has_photo", "eq": true}, "message": "进入出示照片的剧情前，应已取得设备照片。"}
+      ],
+      "choices": [
+        {"id": "accuse", "text": "询问周启并提交调查结论", "target": "truth"},
+        {
+          "id": "secret",
+          "text": "对照照片、许可和记录揭示隐藏线索",
+          "target": "hidden_end",
+          "condition": {"all": [{"var": "has_photo", "eq": true}, {"var": "has_permission", "eq": true}, {"var": "has_record", "eq": true}]}
+        }
+      ]
+    },
+    {
+      "id": "sd_desk",
+      "title": "旧桌：找到遗落的 SD 卡",
+      "choices": [
+        {"id": "take_card", "text": "带着 SD 卡去读取室", "target": "analysis_room", "effects": {"has_sd": true}},
+        {"id": "return", "text": "暂不读取，返回门厅", "target": "foyer"}
+      ]
+    },
+    {
+      "id": "analysis_room",
+      "title": "读取室：提取事故记录",
+      "choices": [
+        {
+          "id": "process",
+          "text": "读取并将 SD 卡封存移交",
+          "target": "spent_card",
+          "condition": {"var": "has_sd", "eq": true},
+          "effects": {"has_sd": false}
+        },
+        {"id": "return", "text": "带卡返回门厅", "target": "foyer"}
+      ]
+    },
+    {
+      "id": "spent_card",
+      "title": "证据移交后：准备提交读取记录",
+      "choices": [
+        {"id": "submit", "text": "提交已读取的 SD 卡记录", "target": "truth", "condition": {"var": "has_sd", "eq": true}}
+      ]
+    },
+    {"id": "truth", "title": "调查结论：交由校方继续核实", "ending": true},
+    {"id": "quiet_end", "title": "暂缓调查结局", "ending": true},
+    {"id": "hidden_end", "title": "隐藏结局：笔记与事故的交叉线索", "ending": true}
+  ]
+}

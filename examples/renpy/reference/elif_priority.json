@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "title": "Ren'Py reference: elif priority",
+  "start": "if_start",
+  "variables": {
+    "first": true,
+    "second": true,
+    "result_first": false,
+    "result_second": false
+  },
+  "nodes": [
+    {
+      "id": "if_start",
+      "title": "ordered if/elif/else at label start",
+      "choices": [
+        {
+          "id": "if_first",
+          "text": "first branch",
+          "target": "return_start",
+          "condition": {"var": "first", "eq": true},
+          "effects": {"result_first": true}
+        },
+        {
+          "id": "elif_second",
+          "text": "second branch after first failed",
+          "target": "return_start",
+          "condition": {
+            "all": [
+              {"not": {"var": "first", "eq": true}},
+              {"var": "second", "eq": true}
+            ]
+          },
+          "effects": {"result_second": true}
+        },
+        {
+          "id": "else_branch",
+          "text": "else after both conditions failed",
+          "target": "return_start",
+          "condition": {
+            "all": [
+              {"not": {"var": "first", "eq": true}},
+              {"not": {"var": "second", "eq": true}}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "return_start",
+      "title": "return from start",
+      "ending": true
+    }
+  ]
+}
